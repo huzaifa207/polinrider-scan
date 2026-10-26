@@ -171,7 +171,8 @@ def scan(repo: dict, since: str) -> list[dict]:
                 "still_the_tip": push["after"] == tip,
             }
         bad = {tip} if state["infected"] else set()
-        if row["force_push"]:
+        # The pushed commit counts only if it's infected: a cleanup's push points at a clean one.
+        if row["force_push"] and push["after"] != tip and inspect(name, push["after"])["infected"]:
             bad.add(push["after"])
         row["deployed_infected"] = [
             {"environment": d["environment"], "by": (d.get("creator") or {}).get("login", "?"), "at": d["created_at"]}
